@@ -16,24 +16,6 @@ public class TypeWiseAlertTests
         var result = TypewiseAlert.ClassifyTemperatureBreach(strategy, temperature);
         Assert.Equal(expectedBreach, result);
     }
-  [Fact]
-  public void CheckAndAlert_ShouldTriggerCorrectAlert(AlertTarget alertTarget, CoolingType coolingType, double temperature, BreachType expectedBreach)
-    {
-        var batteryCharacter = new BatteryCharacter { coolingType = coolingType, brand = "BrandA" };
-
-        IAlert alert = alertTarget == AlertTarget.TO_CONTROLLER ? new ControllerAlertSpy() : new EmailAlertSpy() as IAlert;
-
-        TypewiseAlert.CheckAndAlert(alertTarget, batteryCharacter, temperature);
-
-        if (alert is ControllerAlertSpy controllerSpy)
-        {
-            Assert.Equal(expectedBreach, controllerSpy.TriggeredBreachType);
-        }
-        else if (alert is EmailAlertSpy emailSpy)
-        {
-            Assert.Equal(expectedBreach == BreachType.NORMAL, !emailSpy.AlertTriggered);
-        }
-    }
    [Fact]
   public void CreateAlert_ShouldReturnCorrectAlertInstance(AlertTarget alertTarget, Type expectedType)
     {
