@@ -1,5 +1,5 @@
- public enum AlertTarget
- {
-     TO_CONTROLLER,
-     TO_EMAIL
- }
+public enum AlertTarget
+{
+    TO_CONTROLLER,
+    TO_EMAIL
+}
