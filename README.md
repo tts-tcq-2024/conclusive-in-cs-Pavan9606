@@ -48,5 +48,3 @@ in my daily work I plan to:
 1.Refactor the code regularly to simplify and improve it.
 2.Increase test coverage by adding more tests.
 3.Implement Continuous Integration (CI) with checks for code duplication and complexity.
-
-
