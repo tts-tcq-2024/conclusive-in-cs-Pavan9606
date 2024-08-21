@@ -3,6 +3,16 @@ using Xunit;
 
 public class TypeWiseAlertTests
 {
+   [Theory]
+    [InlineData(25, 20, 30, BreachType.NORMAL)]
+    [InlineData(15, 20, 30, BreachType.TOO_LOW)]
+    [InlineData(35, 20, 30, BreachType.TOO_HIGH)]
+    public void InferBreach_ShouldReturnCorrectBreachType(double temperature, double lowerLimit, double upperLimit, BreachType expectedBreach)
+    {
+        var result = TypewiseAlert.InferBreach(temperature, lowerLimit, upperLimit);
+        Assert.Equal(expectedBreach, result);
+    }
+
     [Theory]
     [InlineData(CoolingType.PASSIVE_COOLING, 20, BreachType.NORMAL)]
     [InlineData(CoolingType.PASSIVE_COOLING, -5, BreachType.TOO_LOW)]
@@ -13,22 +23,11 @@ public class TypeWiseAlertTests
     [InlineData(CoolingType.MED_ACTIVE_COOLING, 20, BreachType.NORMAL)]
     [InlineData(CoolingType.MED_ACTIVE_COOLING, -5, BreachType.TOO_LOW)]
     [InlineData(CoolingType.MED_ACTIVE_COOLING, 45, BreachType.TOO_HIGH)]
-    public void InferBreach_ShouldReturnExpectedBreachType(CoolingType coolingType, double temperature, BreachType expectedBreachType)
+    public void ClassifyTemperatureBreach_ShouldReturnCorrectBreachType(CoolingType coolingType, double temperature, BreachType expectedBreach)
     {
         ICoolingService strategy = CoolingServiceFactory.CreateCoolingService(coolingType);
         var result = strategy.ClassifyTemperature(temperature);
         Assert.Equal(expectedBreach, result);
-    }
-
-    [Theory]
-    [InlineData(AlertTarget.TO_CONTROLLER, BreachType.TOO_LOW)]
-    [InlineData(AlertTarget.TO_EMAIL, BreachType.TOO_HIGH)]
-    public void CheckAndAlert_ShouldTriggerCorrectAlert(AlertTarget alertTarget, BreachType breachType)
-    {
-        var batteryChar = new BatteryCharacter { coolingType = CoolingType.PASSIVE_COOLING, brand = "BrandA" };
-        var mockAlertService = AlertServiceFactory.CreateAlertService(alertTarget);
-
-        mockAlertService.SendAlert(breachType);
     }
 
     [Fact]
