@@ -1,5 +1,5 @@
 using System;
-public static class TypeWiseAlert
+public static class TypewiseAlert
 {
     private static readonly Dictionary<Func<double, double, bool>, BreachType> BreachConditions = 
         new Dictionary<Func<double, double, bool>, BreachType>
