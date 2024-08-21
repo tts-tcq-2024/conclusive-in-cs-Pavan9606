@@ -3,39 +3,77 @@ using Xunit;
 
 public class TypeWiseAlertTests
 {
-   [Fact]
+   [Theory]
+    [InlineData(25, 20, 30, BreachType.NORMAL)]
+    [InlineData(15, 20, 30, BreachType.TOO_LOW)]
+    [InlineData(35, 20, 30, BreachType.TOO_HIGH)]
     public void InferBreach_ShouldReturnCorrectBreachType(double temperature, double lowerLimit, double upperLimit, BreachType expectedBreach)
     {
+        // Act
         var result = TypewiseAlert.InferBreach(temperature, lowerLimit, upperLimit);
+
+        // Assert
         Assert.Equal(expectedBreach, result);
     }
-  [Fact]
-  public void ClassifyTemperatureBreach_ShouldReturnCorrectBreachType(CoolingType coolingType, double temperature, BreachType expectedBreach)
+
+    [Theory]
+    [InlineData(CoolingType.PASSIVE_COOLING, 20, BreachType.NORMAL)]
+    [InlineData(CoolingType.PASSIVE_COOLING, -5, BreachType.TOO_LOW)]
+    [InlineData(CoolingType.PASSIVE_COOLING, 40, BreachType.TOO_HIGH)]
+    [InlineData(CoolingType.HI_ACTIVE_COOLING, 20, BreachType.NORMAL)]
+    [InlineData(CoolingType.HI_ACTIVE_COOLING, -5, BreachType.TOO_LOW)]
+    [InlineData(CoolingType.HI_ACTIVE_COOLING, 50, BreachType.TOO_HIGH)]
+    [InlineData(CoolingType.MED_ACTIVE_COOLING, 20, BreachType.NORMAL)]
+    [InlineData(CoolingType.MED_ACTIVE_COOLING, -5, BreachType.TOO_LOW)]
+    [InlineData(CoolingType.MED_ACTIVE_COOLING, 45, BreachType.TOO_HIGH)]
+    public void ClassifyTemperatureBreach_ShouldReturnCorrectBreachType(CoolingType coolingType, double temperature, BreachType expectedBreach)
     {
-        ICoolingStrategy strategy = AlertFactory.CreateCoolingStrategy(coolingType);
-        var result = TypewiseAlert.ClassifyTemperatureBreach(strategy, temperature);
+        // Arrange
+        ICoolingService strategy = CoolingServiceFactory.CreateCoolingService(coolingType);
+
+        // Act
+        var result = strategy.ClassifyTemperature(temperature);
+
+        // Assert
         Assert.Equal(expectedBreach, result);
     }
-   [Fact]
-  public void CreateAlert_ShouldReturnCorrectAlertInstance(AlertTarget alertTarget, Type expectedType)
+
+    [Theory]
+    [InlineData(AlertTarget.TO_CONTROLLER, typeof(ControllerAlertService))]
+    [InlineData(AlertTarget.TO_EMAIL, typeof(EmailAlertService))]
+    public void CreateAlert_ShouldReturnCorrectAlertInstance(AlertTarget alertTarget, Type expectedType)
     {
-        var alert = AlertFactory.CreateAlert(alertTarget);
+        // Act
+        var alert = AlertServiceFactory.CreateAlertService(alertTarget);
+
+        // Assert
         Assert.IsType(expectedType, alert);
     }
-  [Fact]
-   public void CreateCoolingStrategy_ShouldReturnCorrectStrategyInstance(CoolingType coolingType, Type expectedType)
+
+    [Theory]
+    [InlineData(CoolingType.PASSIVE_COOLING, typeof(PassiveCoolingService))]
+    [InlineData(CoolingType.HI_ACTIVE_COOLING, typeof(HiActiveCoolingService))]
+    [InlineData(CoolingType.MED_ACTIVE_COOLING, typeof(MedActiveCoolingService))]
+    public void CreateCoolingStrategy_ShouldReturnCorrectStrategyInstance(CoolingType coolingType, Type expectedType)
     {
-        var strategy = AlertFactory.CreateCoolingStrategy(coolingType);
+        // Act
+        var strategy = CoolingServiceFactory.CreateCoolingService(coolingType);
+
+        // Assert
         Assert.IsType(expectedType, strategy);
     }
-   [Fact]
-  public void CreateAlert_ShouldThrowExceptionForInvalidAlertTarget()
+
+    [Fact]
+    public void CreateAlert_ShouldThrowExceptionForInvalidAlertTarget()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => AlertFactory.CreateAlert((AlertTarget)999));
+        // Assert
+        Assert.Throws<ArgumentOutOfRangeException>(() => AlertServiceFactory.CreateAlertService((AlertTarget)999));
     }
-   [Fact]
-  public void CreateCoolingStrategy_ShouldThrowExceptionForInvalidCoolingType()
+
+    [Fact]
+    public void CreateCoolingStrategy_ShouldThrowExceptionForInvalidCoolingType()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => AlertFactory.CreateCoolingStrategy((CoolingType)999));
+        // Assert
+        Assert.Throws<ArgumentOutOfRangeException>(() => CoolingServiceFactory.CreateCoolingService((CoolingType)999));
     }
 }
