@@ -9,9 +9,9 @@ public class TypeWiseAlertTests
     [InlineData(CoolingType.MED_ACTIVE_COOLING, 50.0, BreachType.TOO_HIGH)]
     public void InferBreach_ShouldReturnExpectedBreachType(CoolingType coolingType, double temperature, BreachType expectedBreachType)
     {
-        var coolingService = CoolingServiceFactory.CreateCoolingService(coolingType);
-        var actualBreachType = coolingService.ClassifyTemperature(temperature);
-        Assert.Equal(expectedBreachType, actualBreachType);
+        ICoolingService strategy = CoolingServiceFactory.CreateCoolingService(coolingType);
+        var result = strategy.ClassifyTemperature(temperature);
+        Assert.Equal(expectedBreach, result);
     }
 
     [Theory]
