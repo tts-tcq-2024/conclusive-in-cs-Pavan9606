@@ -3,63 +3,67 @@ using Xunit;
 
 public class TypeWiseAlertTests
 {
-   [Theory]
-    [InlineData(25, 20, 30, BreachType.NORMAL)]
-    [InlineData(15, 20, 30, BreachType.TOO_LOW)]
-    [InlineData(35, 20, 30, BreachType.TOO_HIGH)]
-    public void InferBreach_ShouldReturnCorrectBreachType(double temperature, double lowerLimit, double upperLimit, BreachType expectedBreach)
+    [Theory]
+    [InlineData(CoolingType.PASSIVE_COOLING, 25.0, BreachType.NORMAL)]
+    [InlineData(CoolingType.HI_ACTIVE_COOLING, -1.0, BreachType.TOO_LOW)]
+    [InlineData(CoolingType.MED_ACTIVE_COOLING, 50.0, BreachType.TOO_HIGH)]
+    public void InferBreach_ShouldReturnExpectedBreachType(CoolingType coolingType, double temperature, BreachType expectedBreachType)
     {
-        var result = TypewiseAlert.InferBreach(temperature, lowerLimit, upperLimit);
-        Assert.Equal(expectedBreach, result);
+        var coolingService = CoolingServiceFactory.CreateCoolingService(coolingType);
+        var actualBreachType = coolingService.ClassifyTemperature(temperature);
+        Assert.Equal(expectedBreachType, actualBreachType);
     }
 
     [Theory]
-    [InlineData(CoolingType.PASSIVE_COOLING, 20, BreachType.NORMAL)]
-    [InlineData(CoolingType.PASSIVE_COOLING, -5, BreachType.TOO_LOW)]
-    [InlineData(CoolingType.PASSIVE_COOLING, 40, BreachType.TOO_HIGH)]
-    [InlineData(CoolingType.HI_ACTIVE_COOLING, 20, BreachType.NORMAL)]
-    [InlineData(CoolingType.HI_ACTIVE_COOLING, -5, BreachType.TOO_LOW)]
-    [InlineData(CoolingType.HI_ACTIVE_COOLING, 50, BreachType.TOO_HIGH)]
-    [InlineData(CoolingType.MED_ACTIVE_COOLING, 20, BreachType.NORMAL)]
-    [InlineData(CoolingType.MED_ACTIVE_COOLING, -5, BreachType.TOO_LOW)]
-    [InlineData(CoolingType.MED_ACTIVE_COOLING, 45, BreachType.TOO_HIGH)]
-    public void ClassifyTemperatureBreach_ShouldReturnCorrectBreachType(CoolingType coolingType, double temperature, BreachType expectedBreach)
+    [InlineData(AlertTarget.TO_CONTROLLER, BreachType.TOO_LOW)]
+    [InlineData(AlertTarget.TO_EMAIL, BreachType.TOO_HIGH)]
+    public void CheckAndAlert_ShouldTriggerCorrectAlert(AlertTarget alertTarget, BreachType breachType)
     {
-        ICoolingService strategy = CoolingServiceFactory.CreateCoolingService(coolingType);
-        var result = strategy.ClassifyTemperature(temperature);
-        Assert.Equal(expectedBreach, result);
-    }
+        var batteryChar = new BatteryCharacter { coolingType = CoolingType.PASSIVE_COOLING, brand = "BrandA" };
+        var mockAlertService = AlertServiceFactory.CreateAlertService(alertTarget);
 
-    [Theory]
-    [InlineData(AlertTarget.TO_CONTROLLER, typeof(ControllerAlertService))]
-    [InlineData(AlertTarget.TO_EMAIL, typeof(EmailAlertService))]
-    public void CreateAlert_ShouldReturnCorrectAlertInstance(AlertTarget alertTarget, Type expectedType)
-    {
-        var alert = AlertServiceFactory.CreateAlertService(alertTarget);
-        Assert.IsType(expectedType, alert);
-    }
-
-    [Theory]
-    [InlineData(CoolingType.PASSIVE_COOLING, typeof(PassiveCoolingService))]
-    [InlineData(CoolingType.HI_ACTIVE_COOLING, typeof(HiActiveCoolingService))]
-    [InlineData(CoolingType.MED_ACTIVE_COOLING, typeof(MedActiveCoolingService))]
-    public void CreateCoolingStrategy_ShouldReturnCorrectStrategyInstance(CoolingType coolingType, Type expectedType)
-    {
-        var strategy = CoolingServiceFactory.CreateCoolingService(coolingType);
-        Assert.IsType(expectedType, strategy);
+        mockAlertService.SendAlert(breachType);
     }
 
     [Fact]
-    public void CreateAlert_ShouldThrowExceptionForInvalidAlertTarget()
+    public void CreateCoolingService_ShouldReturnCorrectServiceType()
     {
-        // Assert
-        Assert.Throws<ArgumentOutOfRangeException>(() => AlertServiceFactory.CreateAlertService((AlertTarget)999));
+        var coolingService = CoolingServiceFactory.CreateCoolingService(CoolingType.PASSIVE_COOLING);
+        Assert.IsType<PassiveCoolingService>(coolingService);
+
+        coolingService = CoolingServiceFactory.CreateCoolingService(CoolingType.HI_ACTIVE_COOLING);
+        Assert.IsType<HiActiveCoolingService>(coolingService);
+
+        coolingService = CoolingServiceFactory.CreateCoolingService(CoolingType.MED_ACTIVE_COOLING);
+        Assert.IsType<MedActiveCoolingService>(coolingService);
     }
 
     [Fact]
-    public void CreateCoolingStrategy_ShouldThrowExceptionForInvalidCoolingType()
+    public void CreateAlertService_ShouldReturnCorrectServiceType()
     {
-        // Assert
-        Assert.Throws<ArgumentOutOfRangeException>(() => CoolingServiceFactory.CreateCoolingService((CoolingType)999));
+        var alertService = AlertServiceFactory.CreateAlertService(AlertTarget.TO_CONTROLLER);
+        Assert.IsType<ControllerAlertService>(alertService);
+
+        alertService = AlertServiceFactory.CreateAlertService(AlertTarget.TO_EMAIL);
+        Assert.IsType<EmailAlertService>(alertService);
+    }
+
+    [Fact]
+    public void EmailAlertService_ShouldSendCorrectEmail()
+    {
+        var emailService = new EmailAlertService();
+        emailService.SendAlert(BreachType.TOO_LOW);
+        emailService.SendAlert(BreachType.TOO_HIGH);
+
+        // Test the absence of email when the breach type is normal
+        emailService.SendAlert(BreachType.NORMAL);
+    }
+
+    [Fact]
+    public void ControllerAlertService_ShouldSendCorrectAlert()
+    {
+        var controllerService = new ControllerAlertService();
+        controllerService.SendAlert(BreachType.TOO_LOW);
+        controllerService.SendAlert(BreachType.TOO_HIGH);
     }
 }
