@@ -1,3 +1,4 @@
+using System;
 public static class TypewiseAlert
 {
     public static BreachType InferBreach(double value, double lowerLimit, double upperLimit)
