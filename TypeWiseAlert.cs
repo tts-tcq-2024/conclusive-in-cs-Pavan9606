@@ -1,15 +1,21 @@
 using System;
-public static class TypewiseAlert
+public static class TypeWiseAlert
 {
+    private static readonly Dictionary<Func<double, double, bool>, BreachType> BreachConditions = 
+        new Dictionary<Func<double, double, bool>, BreachType>
+        {
+            { (value, lowerLimit) => value < lowerLimit, BreachType.TOO_LOW },
+            { (value, upperLimit) => value > upperLimit, BreachType.TOO_HIGH }
+        };
+
     public static BreachType InferBreach(double value, double lowerLimit, double upperLimit)
     {
-        if (value < lowerLimit)
+        foreach (var condition in BreachConditions)
         {
-            return BreachType.TOO_LOW;
-        }
-        if (value > upperLimit)
-        {
-            return BreachType.TOO_HIGH;
+            if (condition.Key(value, lowerLimit) || condition.Key(value, upperLimit))
+            {
+                return condition.Value;
+            }
         }
         return BreachType.NORMAL;
     }
@@ -23,3 +29,4 @@ public static class TypewiseAlert
         alertService.SendAlert(breachType);
     }
 }
+
