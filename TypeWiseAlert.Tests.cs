@@ -4,9 +4,15 @@ using Xunit;
 public class TypeWiseAlertTests
 {
     [Theory]
-    [InlineData(CoolingType.PASSIVE_COOLING, 25.0, BreachType.NORMAL)]
-    [InlineData(CoolingType.HI_ACTIVE_COOLING, -1.0, BreachType.TOO_LOW)]
-    [InlineData(CoolingType.MED_ACTIVE_COOLING, 50.0, BreachType.TOO_HIGH)]
+    [InlineData(CoolingType.PASSIVE_COOLING, 20, BreachType.NORMAL)]
+    [InlineData(CoolingType.PASSIVE_COOLING, -5, BreachType.TOO_LOW)]
+    [InlineData(CoolingType.PASSIVE_COOLING, 40, BreachType.TOO_HIGH)]
+    [InlineData(CoolingType.HI_ACTIVE_COOLING, 20, BreachType.NORMAL)]
+    [InlineData(CoolingType.HI_ACTIVE_COOLING, -5, BreachType.TOO_LOW)]
+    [InlineData(CoolingType.HI_ACTIVE_COOLING, 50, BreachType.TOO_HIGH)]
+    [InlineData(CoolingType.MED_ACTIVE_COOLING, 20, BreachType.NORMAL)]
+    [InlineData(CoolingType.MED_ACTIVE_COOLING, -5, BreachType.TOO_LOW)]
+    [InlineData(CoolingType.MED_ACTIVE_COOLING, 45, BreachType.TOO_HIGH)]
     public void InferBreach_ShouldReturnExpectedBreachType(CoolingType coolingType, double temperature, BreachType expectedBreachType)
     {
         ICoolingService strategy = CoolingServiceFactory.CreateCoolingService(coolingType);
