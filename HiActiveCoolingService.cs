@@ -1,3 +1,4 @@
+using System;
 public class HiActiveCoolingService : ICoolingService
 {
     public BreachType ClassifyTemperature(double temperatureInC) =>
