@@ -1,4 +1,5 @@
- public enum BreachType
+using System;
+public enum BreachType
  {
      NORMAL,
      TOO_LOW,
