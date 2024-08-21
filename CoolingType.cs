@@ -1,3 +1,4 @@
+using System;
 public enum CoolingType
 {
     PASSIVE_COOLING,
