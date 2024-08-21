@@ -1,3 +1,4 @@
+using System;
 public static class CoolingServiceFactory
 {
     public static ICoolingService CreateCoolingService(CoolingType coolingType)
