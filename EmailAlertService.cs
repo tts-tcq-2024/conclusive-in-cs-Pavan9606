@@ -1,4 +1,5 @@
- public class EmailAlertService : IAlertService
+using System;
+public class EmailAlertService : IAlertService
  {
      public void SendAlert(BreachType breachType)
      {
