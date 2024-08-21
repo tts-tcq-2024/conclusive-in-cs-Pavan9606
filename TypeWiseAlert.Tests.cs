@@ -9,10 +9,7 @@ public class TypeWiseAlertTests
     [InlineData(35, 20, 30, BreachType.TOO_HIGH)]
     public void InferBreach_ShouldReturnCorrectBreachType(double temperature, double lowerLimit, double upperLimit, BreachType expectedBreach)
     {
-        // Act
         var result = TypewiseAlert.InferBreach(temperature, lowerLimit, upperLimit);
-
-        // Assert
         Assert.Equal(expectedBreach, result);
     }
 
@@ -28,13 +25,8 @@ public class TypeWiseAlertTests
     [InlineData(CoolingType.MED_ACTIVE_COOLING, 45, BreachType.TOO_HIGH)]
     public void ClassifyTemperatureBreach_ShouldReturnCorrectBreachType(CoolingType coolingType, double temperature, BreachType expectedBreach)
     {
-        // Arrange
         ICoolingService strategy = CoolingServiceFactory.CreateCoolingService(coolingType);
-
-        // Act
         var result = strategy.ClassifyTemperature(temperature);
-
-        // Assert
         Assert.Equal(expectedBreach, result);
     }
 
@@ -43,10 +35,7 @@ public class TypeWiseAlertTests
     [InlineData(AlertTarget.TO_EMAIL, typeof(EmailAlertService))]
     public void CreateAlert_ShouldReturnCorrectAlertInstance(AlertTarget alertTarget, Type expectedType)
     {
-        // Act
         var alert = AlertServiceFactory.CreateAlertService(alertTarget);
-
-        // Assert
         Assert.IsType(expectedType, alert);
     }
 
@@ -56,10 +45,7 @@ public class TypeWiseAlertTests
     [InlineData(CoolingType.MED_ACTIVE_COOLING, typeof(MedActiveCoolingService))]
     public void CreateCoolingStrategy_ShouldReturnCorrectStrategyInstance(CoolingType coolingType, Type expectedType)
     {
-        // Act
         var strategy = CoolingServiceFactory.CreateCoolingService(coolingType);
-
-        // Assert
         Assert.IsType(expectedType, strategy);
     }
 
